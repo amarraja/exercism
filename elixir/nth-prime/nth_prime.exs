@@ -8,14 +8,14 @@ defmodule Prime do
     raise ArgumentError, message: "n needs to be > 0"
   end
   #TODO: Implement using lazy streams
-  def nth(count), do: nth(2, count, 0)
-  def nth(from, 0, acc), do: acc
-  def nth(from, left, acc) do
-    is_prime = is_prime?(from)
-    next = if is_prime, do: left-1, else: left
-    nth(from + 1, next, from)
+  def nth(count) do
+    Stream.iterate(2, &(&1 + 1))
+    |> Stream.filter(&is_prime?/1)
+    |> Enum.take(count)
+    |> Enum.to_list
+    |> List.last
   end
-
+  
   def is_prime?(1), do: false
   def is_prime?(2), do: true
   def is_prime?(n) do
