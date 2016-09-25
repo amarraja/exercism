@@ -17,11 +17,7 @@ defmodule Sublist do
   end
 
   defp is_sub_list?(a, b) do
-    if (same_heads(a, b)) do
-      true
-    else
-       is_sub_list?(a, tl(b))
-    end
+    same_heads(a, b) || is_sub_list?(a, tl(b))
   end
 
   defp same_heads([], _), do: true
