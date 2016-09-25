@@ -12,17 +12,20 @@ defmodule Sublist do
     end
   end
 
-  defp is_sub_list?(_, []) do
-    false
-  end
-
   defp is_sub_list?(a, b) do
-    same_heads(a, b) || is_sub_list?(a, tl(b))
+    is_sub_list?(a, b, a, b)
   end
 
-  defp same_heads([], _), do: true
-  defp same_heads([h | t1], [h | t2]), do: same_heads(t1, t2)
-  defp same_heads(_, _), do: false
+  defp is_sub_list?([], _, _a, _b), do: true
 
+  defp is_sub_list?([h|ta], [h|tb], a, b) do
+    is_sub_list?(ta, tb, a, b)
+  end
+
+  defp is_sub_list?([_|_], [_|_], a, b) do
+    is_sub_list?(a, tl(b))
+  end
+
+  defp is_sub_list?(_, _, _a, _b), do: false
 
 end
