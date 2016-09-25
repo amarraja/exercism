@@ -11,10 +11,9 @@ defmodule Prime do
   def nth(count), do: nth(2, count, 0)
   def nth(from, 0, acc), do: acc
   def nth(from, left, acc) do
-    case is_prime?(from) do
-      true -> nth(from + 1, left - 1, from)
-      false -> nth(from + 1, left, from)
-    end
+    is_prime = is_prime?(from)
+    next = if is_prime, do: left-1, else: left
+    nth(from + 1, next, from)
   end
 
   def is_prime?(1), do: false
