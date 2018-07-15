@@ -7,16 +7,7 @@ defmodule Strain do
   """
   @spec keep(list :: list(any), fun :: (any -> boolean)) :: list(any)
   def keep(list, fun) do
-    list
-    |> Enum.reduce([], fn i, acc ->
-      cond do
-        fun.(i) ->
-          [i | acc]
-        true ->
-          acc
-      end
-    end)
-    |> Enum.reverse()
+    strain(list, fn i -> fun.(i) end)
   end
 
   @doc """
@@ -27,10 +18,14 @@ defmodule Strain do
   """
   @spec discard(list :: list(any), fun :: (any -> boolean)) :: list(any)
   def discard(list, fun) do
+    strain(list, fn i -> !fun.(i) end)
+  end
+
+  defp strain(list, check_fun) do
     list
     |> Enum.reduce([], fn i, acc ->
       cond do
-        !fun.(i) ->
+        check_fun.(i) ->
           [i | acc]
         true ->
           acc
