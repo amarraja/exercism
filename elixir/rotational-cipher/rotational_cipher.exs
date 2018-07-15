@@ -22,11 +22,11 @@ defmodule RotationalCipher do
     [translate_character(h, shift) | do_rotate(t, shift)]
   end
 
-  defp translate_character(c, shift) when c >= ?a and c <= ?z do
+  defp translate_character(c, shift) when c in ?a..?z do
     shift(c, shift, ?a, ?z)
   end
 
-  defp translate_character(c, shift) when c >= ?A and c <= ?Z do
+  defp translate_character(c, shift) when c in ?A..?Z do
     shift(c, shift, ?A, ?Z)
   end
 
