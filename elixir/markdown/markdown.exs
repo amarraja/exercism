@@ -19,41 +19,35 @@ defmodule Markdown do
     |> replace_markdown_tags()
   end
 
-  defp process([]), do: []
-  defp process([_ | tail] = list) do
-    {result, rest} =
-      case do_process(list) do
-        res when is_binary(res) -> {res, tail}
-        {_res, _rest} = res -> res
-      end
+  def process([], acc), do: Enum.reverse(acc)
+  defp process(list), do: process(list, [])
 
-    [result | process(rest)]
+  def process(["#" <> _ = line | t], acc), do:
+    process(t, [create_header(line) | acc])
+
+  def process(["* " <> _ | _] = list, acc), do:
+    process_ul(list, acc, [])
+
+  def process([h | t], acc), do:
+    process(t, [wrap_tag(h, "p") | acc])
+
+  def process_ul(["* " <> line | tail], acc, listacc), do:
+    process_ul(tail, acc, [line | listacc])
+
+  def process_ul(list, acc, listacc) do
+    list_items = Enum.reverse(listacc)
+    process(list, [create_ul(list_items) | acc])
   end
 
-  defp do_process(["#" <> _ = line | _]) do
-    [prefix | content] = String.split(line)
-    header_tag = "h#{String.length(prefix)}"
-    content = Enum.join(content, " ")
-    wrap_in_tag(content, header_tag)
-  end
 
-  defp do_process(["*" <> _ | _] = lines) do
-    {li, rest} =
-      lines
-      |> Enum.split_while(&String.starts_with?(&1, "*"))
+  def create_header("#" <> rest, count \\ 0), do: create_header(rest, count + 1)
+  def create_header(" " <> rest, count), do: wrap_tag(rest, "h#{count}")
 
-    ul =
-      li
-      |> Enum.map(&String.trim_leading(&1, "* "))
-      |> Enum.map(&wrap_in_tag(&1, "li"))
-      |> Enum.join()
-      |> wrap_in_tag("ul")
-
-    {ul, rest}
-  end
-
-  defp do_process([line | _]) do
-    wrap_in_tag(line, "p")
+  defp create_ul(items) do
+    items
+    |> Enum.map(&wrap_tag(&1, "li"))
+    |> Enum.join()
+    |> wrap_tag("ul")
   end
 
   defp replace_markdown_tags(body) do
@@ -64,13 +58,10 @@ defmodule Markdown do
 
   defp process_markdown_replacement(input, marker, tag) do
     ~r/#{marker}([^#{marker}]+)#{marker}/
-    |>  Regex.replace(input, fn _, c -> wrap_in_tag(c, tag) end)
+    |>  Regex.replace(input, fn _, c -> wrap_tag(c, tag) end)
   end
 
-  defp wrap_in_tag(contents, tag) do
-    open_tag = "<#{tag}>"
-    close_tag = "</#{tag}>"
-    "#{open_tag}#{contents}#{close_tag}"
-  end
+  defp wrap_tag(contents, tag), do:
+    "<#{tag}>#{contents}</#{tag}>"
 
 end
