@@ -19,23 +19,25 @@ defmodule Markdown do
     |> replace_markdown_tags()
   end
 
-  defp process(list) do
-    process(list, [])
+  defp process([]), do: []
+  defp process([_ | tail] = list) do
+    {result, rest} =
+      case do_process(list) do
+        res when is_binary(res) -> {res, tail}
+        {_res, _rest} = res -> res
+      end
+
+    [result | process(rest)]
   end
 
-  defp process([], acc) do
-    Enum.reverse(acc)
-  end
-
-  defp process(["#" <> _ = line | rest], acc) do
+  defp do_process(["#" <> _ = line | _]) do
     [prefix | content] = String.split(line)
     header_tag = "h#{String.length(prefix)}"
     content = Enum.join(content, " ")
-    header = wrap_in_tag(content, header_tag)
-    process(rest, [header | acc])
+    wrap_in_tag(content, header_tag)
   end
 
-  defp process(["*" <> _ | _] = lines, acc) do
+  defp do_process(["*" <> _ | _] = lines) do
     {li, rest} =
       lines
       |> Enum.split_while(&String.starts_with?(&1, "*"))
@@ -47,12 +49,11 @@ defmodule Markdown do
       |> Enum.join()
       |> wrap_in_tag("ul")
 
-    process(rest, [ul | acc])
+    {ul, rest}
   end
 
-  defp process([line | rest], acc) do
-    paragraph = wrap_in_tag(line, "p")
-    process(rest, [paragraph | acc])
+  defp do_process([line | _]) do
+    wrap_in_tag(line, "p")
   end
 
   defp replace_markdown_tags(body) do
