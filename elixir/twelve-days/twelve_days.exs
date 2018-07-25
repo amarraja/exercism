@@ -22,21 +22,6 @@ defmodule TwelveDays do
   all gifts for previous days in the same line.
   """
   @spec verse(number :: integer) :: String.t()
-  # def verse(number) do
-  #   lines =
-  #     Enum.take(@lines, number)
-  #     |> Enum.reverse()
-  #
-  #   split_at = max(1, Enum.count(lines) - 1)
-  #   {left, right} = Enum.split(lines, split_at)
-  #
-  #   first = Enum.join(left, ", ")
-  #   all = Enum.join([first | right], ", and ")
-  #
-  #   count = Enum.at(@counts, number - 1)
-  #   "On the #{count} day of Christmas my true love gave to me, #{all}."
-  # end
-
   def verse(number) do
     lyrics =
       @lines
@@ -50,7 +35,7 @@ defmodule TwelveDays do
 
   defp build_verse([h], "" = acc), do: build_verse([], acc <> h)
   defp build_verse([h], acc), do: build_verse([], acc <> "and " <> h)
-  defp build_verse([h | t], acc), do: build_verse(t, acc <> h <> ", ")
+  defp build_verse([h | t], acc), do: build_verse(t, [acc <> h <> ", "])
   defp build_verse([], acc), do: acc
 
 
