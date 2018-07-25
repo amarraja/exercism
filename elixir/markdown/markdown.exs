@@ -19,29 +19,29 @@ defmodule Markdown do
     |> replace_markdown_tags()
   end
 
-  def process([], acc), do: Enum.reverse(acc)
   defp process(list), do: process(list, [])
+  defp process([], acc), do: Enum.reverse(acc)
 
-  def process(["#" <> _ = line | t], acc), do:
+  defp process(["#" <> _ = line | t], acc), do:
     process(t, [create_header(line) | acc])
 
-  def process(["* " <> _ | _] = list, acc), do:
+  defp process(["* " <> _ | _] = list, acc), do:
     process_ul(list, acc, [])
 
-  def process([h | t], acc), do:
+  defp process([h | t], acc), do:
     process(t, [wrap_tag(h, "p") | acc])
 
-  def process_ul(["* " <> line | tail], acc, listacc), do:
+  defp process_ul(["* " <> line | tail], acc, listacc), do:
     process_ul(tail, acc, [line | listacc])
 
-  def process_ul(list, acc, listacc) do
+  defp process_ul(list, acc, listacc) do
     list_items = Enum.reverse(listacc)
     process(list, [create_ul(list_items) | acc])
   end
 
-
-  def create_header("#" <> rest, count \\ 0), do: create_header(rest, count + 1)
-  def create_header(" " <> rest, count), do: wrap_tag(rest, "h#{count}")
+  defp create_header(str, count \\ 0)
+  defp create_header("#" <> rest, count), do: create_header(rest, count + 1)
+  defp create_header(" " <> rest, count), do: wrap_tag(rest, "h#{count}")
 
   defp create_ul(items) do
     items
